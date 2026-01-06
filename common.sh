@@ -25,7 +25,7 @@ check_root(){
         echo "Please run this script as root user"
         exit 1
     else
-        echo "Running the script as root user"
+        echo "Running the script as super user"
     fi
 }
 
