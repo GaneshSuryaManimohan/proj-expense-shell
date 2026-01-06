@@ -33,7 +33,7 @@ cd /app
 rm -rf /app/*
 unzip /tmp/backend.zip &>>$LOGFILE
 
-npm install &>>$LOGFILE
+npm jinstall &>>$LOGFILE
 
 cp /home/ec2-user/proj-expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
 
