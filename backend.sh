@@ -8,16 +8,11 @@ echo "Please enter root password for MySQL::"
 read -s mysql_root_password
 
 dnf module disable nodejs -y &>>$LOGFILE
-VALIDATE $? "Disabling default nodejs"
-
 dnf module enable nodejs:20 -y &>>$LOGFILE
-VALIDATE $? "Enabling nodejs:20"
-
 dnf list installed nodejs &>>$LOGFILE
 if [ $? -ne 0 ]
 then
     dnf install nodejs -y &>>$LOGFILE
-    VALIDATE $? "Installing nodejs"
 else
     echo -e "nodejs is already installed....$Y SKIPPING $N"
 fi
@@ -26,7 +21,6 @@ id expense &>>$LOGFILE
 if [ $? -ne 0 ]
 then
     useradd expense &>>$LOGFILE
-    VALIDATE $? "Adding user expense"
 else
     echo -e "expense user is already present....$Y SKIPPING $N"
 fi
@@ -34,40 +28,29 @@ fi
 mkdir -p /app &>>$LOGFILE
 
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOGFILE
-VALIDATE $? "Downloading Backend Code"
 
 cd /app 
 rm -rf /app/*
 unzip /tmp/backend.zip &>>$LOGFILE
-VALIDATE $? "Extracting Backend Code"
 
 npm install &>>$LOGFILE
-VALIDATE $? "Installing nodejs dependencies"
 
 cp /home/ec2-user/proj-expense-shell/backend.service /etc/systemd/system/backend.service &>>$LOGFILE
-VALIDATE $? "Copy Backend Service"
 
 systemctl daemon-reload &>>$LOGFILE
-VALIDATE $? "daemon reload"
 
 systemctl start backend &>>$LOGFILE
-VALIDATE $? "starting backend"
 
 systemctl enable backend &>>$LOGFILE
-VALIDATE $? "enable backend"
-
 
 dnf list installed mysql &>>$LOGFILE
 if [ $? -ne 0 ]
 then
     dnf install mysql -y &>>$LOGFILE
-    VALIDATE $? "Installing mysql"
 else
     echo -e "mysql is already installed....$Y SKIPPING $N"
 fi
 
 mysql -h db.surya-devops.site -uroot -p${mysql_root_password} < /app/schema/backend.sql &>>$LOGFILE
-VALIDATE $? "Loading DB schema"
 
 systemctl restart backend &>>$LOGFILE
-VALIDATE $? "Restarting Backend Service"
